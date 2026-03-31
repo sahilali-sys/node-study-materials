@@ -7,93 +7,196 @@
     <style>
         body {
             background-color: black;
-            color: #00ff00; /* Hacker Green */
+            color: #00ff00;
             font-family: 'Courier New', Courier, monospace;
-            font-size: 16px; /* Slightly smaller for mobile screens */
+            font-size: 16px;
             margin: 0;
-            padding: 10px;
-            overflow-x: hidden;
-            height: 100vh; /* Ensures the whole screen is clickable */
-            user-select: none; /* Prevents accidentally highlighting text while tapping */
+            padding: 0;
+            overflow: hidden; /* Stops manual scrolling */
+            height: 100vh;
+            user-select: none;
         }
+
+        /* The Bait Screen */
+        #start-screen {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            text-align: center;
+            padding: 20px;
+        }
+        button {
+            background-color: transparent;
+            color: #00ff00;
+            border: 2px solid #00ff00;
+            padding: 15px 30px;
+            font-size: 20px;
+            font-family: inherit;
+            cursor: pointer;
+            margin-top: 20px;
+            font-weight: bold;
+        }
+        button:active {
+            background-color: #00ff00;
+            color: black;
+        }
+
+        /* The Hacker Console */
         #console {
+            display: none;
+            padding: 10px;
             white-space: pre-wrap;
-            word-wrap: break-word; /* Prevents long code from pushing off the screen */
+            word-wrap: break-word;
+            height: 100vh;
+            overflow-y: hidden;
+        }
+
+        /* The Countdown Timer */
+        #timer {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 150px;
+            color: red;
+            opacity: 0.6; /* See-through so code shows behind it */
+            display: none;
+            font-weight: bold;
+            z-index: 10;
+        }
+
+        /* The Final Message */
+        #end-screen {
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            height: 100vh;
+            text-align: center;
+            color: red;
+            padding: 20px;
+        }
+        .reveal-text {
+            color: white;
+            font-size: 22px;
+            margin-top: 20px;
+        }
+
+        /* The Screen Shake Animation */
+        .shake {
+            animation: shake 0.1s infinite;
+        }
+        @keyframes shake {
+            0% { transform: translate(2px, 1px) rotate(0deg); }
+            25% { transform: translate(-1px, -2px) rotate(-1deg); }
+            50% { transform: translate(-3px, 0px) rotate(1deg); }
+            75% { transform: translate(2px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -1px) rotate(1deg); }
         }
     </style>
 </head>
 <body>
 
+    <div id="start-screen">
+        <h2>INCOMING ENCRYPTED FILE</h2>
+        <button onclick="triggerTrap()">DECRYPT PAYLOAD</button>
+    </div>
+
     <div id="console"></div>
+    <div id="timer">10</div>
+
+    <div id="end-screen">
+        <h1 style="font-size: 40px;">CRITICAL FAILURE</h1>
+        <p class="reveal-text">Device wipe complete.</p>
+        <p class="reveal-text">All local data has been transferred to <strong>Madara_The_Grim</strong>.</p>
+        <br>
+        <h2 style="color: #00ff00; font-size: 35px;">🤡 HAPPY APRIL FOOLS'! 🤡</h2>
+    </div>
 
     <script>
         const fakeCode = `
 def bypass_mainframe(target_ip):
     print("Initiating brute force protocol...")
     connect_to_node(target_ip)
-    
     for i in range(10000):
         if check_encryption_key(generate_hash(i)):
-            print("Access Granted. Bypassing firewall.")
             return True
             
-    sys.exit("Error: Counter-measure detected.")
-
 class RootAccess:
-    def __init__(self):
-        self.privilege_level = "SUPERUSER"
-        self.packet_sniffer = True
-        
     def execute_payload(self):
         inject_sql_string("DROP TABLE users;")
         reroute_ip_address("192.168.1.1")
         print("Data exfiltration complete.")
         
-# Initiating sequence...
 import os, sys, time
 def crack_password():
     chars = "abcdefghijklmnopqrstuvwxyz0123456789@#%"
     for c in chars:
         sys.stdout.write(f"Testing node: {c}\\r")
-        time.sleep(0.01)
-crack_password()
+        
+# KERNEL PANIC: MEMORY OVERFLOW DETECTED
+# OVERRIDING SAFETY PROTOCOLS...
+# DOWNLOADING USER_DATA.ZIP...
 `;
 
-        let currentIndex = 0;
-        const consoleDiv = document.getElementById('console');
+        let consoleDiv = document.getElementById('console');
+        let timerDiv = document.getElementById('timer');
+        let endScreen = document.getElementById('end-screen');
+        let startScreen = document.getElementById('start-screen');
+        
+        let timeLeft = 10;
+        let typeInterval, countdownInterval;
+        let charIndex = 0;
 
-        // Function to add code to the screen
-        function typeCode() {
-            // Grab 25 characters per tap for a fast, dramatic effect
-            let textToAdd = fakeCode.substring(currentIndex, currentIndex + 25);
-            
-            consoleDiv.innerHTML += textToAdd;
-            currentIndex += 25;
+        function triggerTrap() {
+            // 1. Force Fullscreen to hide browser bars
+            let elem = document.documentElement;
+            if (elem.requestFullscreen) { elem.requestFullscreen(); }
+            else if (elem.webkitRequestFullscreen) { elem.webkitRequestFullscreen(); }
 
-            // Loop back to the start if we run out of code
-            if (currentIndex >= fakeCode.length) {
-                currentIndex = 0;
-            }
+            // 2. Switch screens and start shaking
+            startScreen.style.display = 'none';
+            consoleDiv.style.display = 'block';
+            timerDiv.style.display = 'block';
+            document.body.classList.add('shake');
 
-            // Auto-scroll to the bottom
-            window.scrollTo(0, document.body.scrollHeight);
+            // 3. Start auto-typing the hacker code very fast
+            typeInterval = setInterval(() => {
+                let textToAdd = fakeCode.substring(charIndex, charIndex + 40);
+                consoleDiv.innerHTML += textToAdd;
+                charIndex += 40;
+                if (charIndex >= fakeCode.length) charIndex = 0;
+                
+                // Auto-scroll to bottom
+                consoleDiv.scrollTop = consoleDiv.scrollHeight;
+            }, 50); // Types new code every 50 milliseconds
+
+            // 4. Start the 10-second countdown timer
+            countdownInterval = setInterval(() => {
+                timeLeft--;
+                timerDiv.innerText = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    executeEndSequence();
+                }
+            }, 1000); // Ticks every 1 second
         }
 
-        // Listen for taps (mobile) and clicks (desktop/mouse)
-        window.addEventListener('touchstart', function(event) {
-            event.preventDefault(); // Prevents zooming or scrolling issues
-            typeCode();
-        }, {passive: false});
-
-        window.addEventListener('click', function(event) {
-            typeCode();
-        });
-        
-        // Keep the keyboard functionality just in case!
-        window.addEventListener('keydown', function(event) {
-            event.preventDefault(); 
-            typeCode();
-        });
+        function executeEndSequence() {
+            // Stop typing, stop counting, stop shaking
+            clearInterval(typeInterval);
+            clearInterval(countdownInterval);
+            document.body.classList.remove('shake');
+            
+            // Hide the terminal and timer
+            consoleDiv.style.display = 'none';
+            timerDiv.style.display = 'none';
+            
+            // Show the final joke message
+            endScreen.style.display = 'flex';
+        }
     </script>
 </body>
 </html>
